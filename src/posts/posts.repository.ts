@@ -6,7 +6,7 @@ import { PostScore } from "./schemas/post-score.schema";
 import { populateCommunity, populateUser } from "./posts.aggregation";
 
 @Injectable()
-export class PostRepository {
+export class PostsRepository {
     constructor(
         @InjectModel(Post.name) private readonly postModel: Model<Post>,
         @InjectModel(PostScore.name) private readonly postScoreModel: Model<PostScore>
@@ -21,7 +21,7 @@ export class PostRepository {
 
     async find(postId: string): Promise<Post | null> {
         return this.postModel.aggregate([
-            { $match: { id: new Types.ObjectId(postId) } },
+            { $match: { _id: new Types.ObjectId(postId) } },
             ...populateCommunity(),
             ...populateUser()
         ]).exec().then(res => res ? res[0] : null)
