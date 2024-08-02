@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Types } from 'mongoose'
 
-export type PostDocument = HydratedDocument<Post>
+export type ReplyDocument = HydratedDocument<Reply>
 
 // class Attachment {
 //   @Prop()
@@ -15,9 +15,12 @@ export type PostDocument = HydratedDocument<Post>
 // }
 
 @Schema({ timestamps: true })
-export class Post {
-    @Prop({ type: Types.ObjectId, ref: 'Community', required: true })
-    community: Types.ObjectId;
+export class Reply {
+    @Prop({ type: Types.ObjectId, ref: 'Post', required: true })
+    post: Types.ObjectId;
+
+    @Prop({ type: Types.ObjectId, ref: 'Reply' })
+    parent: Types.ObjectId;
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true })
     user: Types.ObjectId;
@@ -28,10 +31,6 @@ export class Post {
     @Prop({ default: 0 })
     reply_count: number
 
-    //   Masih belum perlu
-    //   @Prop({ type: [Attachment], default: [] })
-    //   attachments: Attachment[]
-
     user_score?: number
 
     @Prop({ default: 0 })
@@ -41,4 +40,4 @@ export class Post {
     deleted_at: Date | null
 }
 
-export const PostSchema = SchemaFactory.createForClass(Post);
+export const ReplySchema = SchemaFactory.createForClass(Reply);
