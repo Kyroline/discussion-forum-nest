@@ -1,45 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { GiveScoreDto } from './dto/give-score.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+    constructor(private readonly postsService: PostsService) { }
 
-  @Post()
-  async create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
-  }
+    @UseGuards(AuthGuard)
+    @Post()
+    async create(@Request() req, @Body() createPostDto: CreatePostDto) {
+        return this.postsService.create(req.user.sub, createPostDto);
+    }
 
-  @Get()
-  findAll() {
-    return this.postsService.findAll();
-  }
+    @UseGuards(AuthGuard)
+    @Get()
+    findAll(@Request() req) {
+        return this.postsService.findAll(req.user ? req.user.sub : null);
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(id);
-  }
+    @UseGuards(AuthGuard)
+    @Get(':id')
+    findOne(@Request() req, @Param('id') id: string) {
+        return this.postsService.findOne(id, req.user ? req.user.sub : null);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(id, updatePostDto);
-  }
+    @UseGuards(AuthGuard)
+    @Patch(':id')
+    update(@Request() req, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+        return this.postsService.update(id, updatePostDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(id);
-  }
+    @UseGuards(AuthGuard)
+    @Delete(':id')
+    remove(@Request() req, @Param('id') id: string) {
+        return this.postsService.remove(id);
+    }
 
-  @Post(':id/score')
-  giveScore(@Param('id') id: string, @Body() giveScoreDto: GiveScoreDto) {
-    return this.postsService.giveScore(id, '', giveScoreDto)
-  }
+    @UseGuards(AuthGuard)
+    @Post(':id/score')
+    giveScore(@Request() req, @Param('id') id: string, @Body() giveScoreDto: GiveScoreDto) {
+        return this.postsService.giveScore(id, req.user.sub, giveScoreDto.score)
+    }
 
-  @Delete(':id/score')
-  deleteScore(@Param('id') id: string) {
-    return this.postsService.deleteScore(id, '')
-  }
+    @UseGuards(AuthGuard)
+    @Delete(':id/score')
+    deleteScore(@Request() req, @Param('id') id: string) {
+        return this.postsService.deleteScore(id, req.user.sub)
+    }
 }

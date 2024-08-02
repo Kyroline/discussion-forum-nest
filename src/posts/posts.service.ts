@@ -4,43 +4,73 @@ import { Post } from './schemas/post.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { PostsRepository } from './posts.repository';
-import { Connection, ClientSession, UpdateWriteOpResult } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { GiveScoreDto } from './dto/give-score.dto';
 
 @Injectable()
 export class PostsService {
-    constructor(private readonly postsRepository: PostsRepository) { }
+    constructor(
+        private readonly postsRepository: PostsRepository,
+        @InjectConnection() private readonly connection: mongoose.Connection
+    ) { }
 
-    async create(createPostDto: CreatePostDto) {
+    async create(userId: string, createPostDto: CreatePostDto) {
         return this.postsRepository.store(
-            createPostDto.community_id,
-            '',
+            userId,
             createPostDto.title,
             createPostDto.content
         )
     }
 
-    async findAll(): Promise<Post[]> {
-        return this.postsRepository.findAll()
+    async findAll(userId?: string | null): Promise<Post[]> {
+        return this.postsRepository.findAll(userId)
     }
 
-    async findOne(id: string): Promise<Post | null> {
-        return this.postsRepository.find(id)
+    async findOne(id: string, userId?: string | null): Promise<Post | null> {
+        return this.postsRepository.find(id, userId)
     }
 
-    async update(id: string, updatePostDto: UpdatePostDto): Promise<UpdateWriteOpResult> {
+    async update(id: string, updatePostDto: UpdatePostDto): Promise<mongoose.UpdateWriteOpResult> {
         return this.postsRepository.update(id, updatePostDto.title, updatePostDto.content)
     }
 
     async remove(id: string) {
-        return `This action removes a #${id} post`;
+        try {
+            const post = await this.postsRepository.delete(id)
+        } catch (error) {
+
+        }
     }
 
-    async giveScore(id: string, userId: string, giveScoreDto: GiveScoreDto) {
-        return Promise.all([this.postsRepository.setPostScore(id, userId, giveScoreDto.score), this.postsRepository.incScore(id, giveScoreDto.score)])
+    async giveScore(id: string, userId: string, score: number) {
+        const session = await this.connection.startSession()
+        try {
+            await this.postsRepository.setPostScore(id, userId, score)
+            await this.postsRepository.incScore(id, score)
+
+            await session.commitTransaction()
+        } catch {
+            await session.abortTransaction()
+        } finally {
+            session.endSession()
+        }
     }
 
     async deleteScore(id: string, userId: string) {
-        return this.postsRepository.deletePostScore(id, userId)
+        const session = await this.connection.startSession()
+        try {
+            const score = await this.postsRepository.deletePostScore(id, userId)
+            await this.postsRepository.incScore(id, score.score * -1, session)
+
+            await session.commitTransaction()
+        } catch {
+            await session.abortTransaction()
+        } finally {
+            session.endSession()
+        }
+    }
+
+    async incReplyCount(id: string, value: number, session?: mongoose.ClientSession) {
+        return this.postsRepository.incReplyCount(id, value, session)
     }
 }

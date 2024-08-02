@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Model, Types } from 'mongoose';
-import { Post } from './schemas/post.schema';
+import { ClientSession, Model, PipelineStage, Types } from 'mongoose';
+import { Post, PostDocument } from './schemas/post.schema';
 import { PostScore } from "./schemas/post-score.schema";
-import { populateCommunity, populateUser } from "./posts.aggregation";
+import { checkIfUserGiveScore, populateUser } from "./posts.aggregation";
 
 @Injectable()
 export class PostsRepository {
@@ -12,24 +12,23 @@ export class PostsRepository {
         @InjectModel(PostScore.name) private readonly postScoreModel: Model<PostScore>
     ) { }
 
-    async findAll(): Promise<Post[]> {
+    async findAll(userId?: string | null): Promise<Post[]> {
         return this.postModel.aggregate([
-            ...populateCommunity(),
             ...populateUser(),
+            ...(userId ? checkIfUserGiveScore(userId) : [])
         ]).exec()
     }
 
-    async find(postId: string): Promise<Post | null> {
+    async find(postId: string, userId?: string | null): Promise<Post | null> {
         return this.postModel.aggregate([
             { $match: { _id: new Types.ObjectId(postId) } },
-            ...populateCommunity(),
-            ...populateUser()
+            ...populateUser(),
+            ...(userId ? checkIfUserGiveScore(userId) : [])
         ]).exec().then(res => res ? res[0] : null)
     }
 
-    async store(communityId: string | null, userId: string, title: string, content: string, session?: ClientSession) {
+    async store(userId: string, title: string, content: string, session?: ClientSession) {
         return this.postModel.create([{
-            community: communityId ?? null,
             user: userId,
             title: title,
             content: content,
@@ -42,8 +41,16 @@ export class PostsRepository {
         return this.postModel.updateOne({ _id: postId }, { title: title, content: content }, session ? { session } : {})
     }
 
+    async delete(postId: string, session?: ClientSession): Promise<PostDocument | null> {
+        return this.postModel.findOneAndDelete({ _id: postId }, session ? { session } : {})
+    }
+
     async incScore(postId: string, score: number, session?: ClientSession) {
         return this.postModel.updateOne({ _id: postId }, { $set: { score: { $inc: score } } }, session ? { session } : {})
+    }
+
+    async incReplyCount(postId: string, value: number, session?: ClientSession) {
+        return this.postModel.updateOne({ _id: postId }, { $set: { reply_count: { $inc: value } } }, session ? { session } : {})
     }
 
     async setPostScore(postId: string, userId: string, score: number, session?: ClientSession) {
@@ -51,6 +58,6 @@ export class PostsRepository {
     }
 
     async deletePostScore(postId: string, userId: string, session?: ClientSession) {
-        return this.postScoreModel.deleteOne({ post: postId, user: userId }, session ? { session } : {})
+        return this.postScoreModel.findOneAndDelete({ post: postId, user: userId }, session ? { session } : {})
     }
 }

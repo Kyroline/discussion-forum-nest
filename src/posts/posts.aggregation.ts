@@ -1,45 +1,4 @@
-import { PipelineStage } from "mongoose"
-
-export const populateCommunity = (): PipelineStage[] => [
-    {
-        $addFields: {
-            has_community: { $cond: { if: { $gt: ['$community', null] }, then: true, else: false } }
-        }
-    },
-    {
-        $facet: {
-            withCommunity: [
-                { $match: { has_community: true } },
-                {
-                    $lookup: {
-                        from: 'communities',
-                        localField: 'community',
-                        foreignField: '_id',
-                        pipeline: [
-                            {
-                                $project: {
-                                    'creator': 0
-                                }
-                            }
-                        ],
-                        as: 'community'
-                    }
-                },
-                { $unwind: '$community' }
-            ],
-            withoutCommunity: [
-                { $match: { has_community: false } }
-            ]
-        }
-    },
-    {
-        $project: {
-            posts: { $concatArrays: ['$withCommunity', '$withoutCommunity'] }
-        }
-    },
-    { $unwind: '$posts' },
-    { $replaceRoot: { newRoot: '$posts' } }
-]
+import { PipelineStage, Types } from "mongoose"
 
 export const populateUser = (): PipelineStage[] => [
     {
@@ -67,7 +26,7 @@ export const checkIfUserGiveScore = (userId: string): PipelineStage[] => [
     {
         $lookup: {
             from: 'postscores',
-            let: { post_id: '$_id', user_id: userId },
+            let: { post_id: '$_id', user_id: new Types.ObjectId(userId) },
             pipeline: [
                 {
                     $match: {
@@ -102,4 +61,4 @@ export const checkIfUserGiveScore = (userId: string): PipelineStage[] => [
             'matchedScores': 0
         }
     }
-]
+];

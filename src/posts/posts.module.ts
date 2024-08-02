@@ -11,8 +11,8 @@ import { PostsRepository } from './posts.repository';
         MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }, {name: PostScore.name, schema: PostSchema}]),
     ],
     controllers: [PostsController],
-    providers: [PostsService, PostsRepository
-    ],
+    providers: [PostsService, PostsRepository],
+    exports: [PostsService]
 })
 
 export class PostsModule {}
