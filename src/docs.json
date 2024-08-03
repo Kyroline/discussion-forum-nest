@@ -551,6 +551,10 @@
             "CreateReplyDto": {
                 "type": "object",
                 "properties": {
+                    "post_id": {
+                        "type": "string",
+                        "example": "MyUsername"
+                    },
                     "parent": {
                         "type": "string",
                         "example": "MyUsername"

@@ -51,6 +51,10 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Docs
+
+Dokumentasi Swagger terdapat pada /docs
+
 ## Test
 
 ```bash
