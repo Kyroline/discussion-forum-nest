@@ -495,8 +495,8 @@
         }
     },
     "info": {
-        "title": "Cats example",
-        "description": "The cats API description",
+        "title": "Discussion Forum Simple REST API",
+        "description": "Challenge Magang DOT Backend Typescript",
         "version": "1.0",
         "contact": {}
     },
