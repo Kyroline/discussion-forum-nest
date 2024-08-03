@@ -10,10 +10,6 @@
             "description": "Endpoint reply"
         },
         {
-            "name": "users",
-            "description": "Endpoint users"
-        },
-        {
             "name": "auth",
             "description": "Endpoint auth"
         }
@@ -21,6 +17,11 @@
     "paths": {
         "/posts": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "posts"
                 ],
@@ -43,6 +44,11 @@
                 }
             },
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "posts"
                 ],
@@ -57,6 +63,11 @@
         },
         "/posts/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "posts"
                 ],
@@ -78,6 +89,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "posts"
                 ],
@@ -109,6 +125,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "posts"
                 ],
@@ -132,6 +153,11 @@
         },
         "/posts/{id}/score": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "posts"
                 ],
@@ -163,6 +189,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "posts"
                 ],
@@ -186,11 +217,15 @@
         },
         "/replies": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "replies"
                 ],
                 "operationId": "RepliesController_create",
-                "parameters": [],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -208,11 +243,33 @@
                 }
             },
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "replies"
                 ],
                 "operationId": "RepliesController_findAll",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "parent",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "post",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -222,6 +279,11 @@
         },
         "/replies/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "replies"
                 ],
@@ -243,6 +305,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "replies"
                 ],
@@ -274,10 +341,79 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "replies"
                 ],
                 "operationId": "RepliesController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/replies/{id}/score": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "operationId": "RepliesController_giveScore",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GiveScoreDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "operationId": "RepliesController_deleteScore",
                 "parameters": [
                     {
                         "name": "id",
@@ -319,6 +455,30 @@
                 }
             }
         },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "operationId": "AuthController_register",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/auth/profile": {
             "get": {
                 "tags": [
@@ -342,6 +502,13 @@
     },
     "servers": [],
     "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
         "schemas": {
             "CreatePostDto": {
                 "type": "object",
@@ -374,29 +541,66 @@
                 "properties": {
                     "score": {
                         "type": "integer",
-                        "enum": [1, -1]
+                        "enum": [
+                            1,
+                            -1
+                        ]
                     }
                 }
             },
             "CreateReplyDto": {
                 "type": "object",
-                "properties": {}
+                "properties": {
+                    "parent": {
+                        "type": "string",
+                        "example": "MyUsername"
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "Content body"
+                    }
+                }
             },
             "UpdateReplyDto": {
                 "type": "object",
-                "properties": {}
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "example": "Content body"
+                    }
+                }
             },
-            "CreateCommunityDto": {
+            "RegisterDto": {
                 "type": "object",
-                "properties": {}
-            },
-            "UpdateCommunityDto": {
-                "type": "object",
-                "properties": {}
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "MyUsername"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "mypassword"
+                    }
+                }
             },
             "LoginDto": {
                 "type": "object",
-                "properties": {}
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "mypassword"
+                    }
+                }
             }
         }
     }

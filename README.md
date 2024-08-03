@@ -24,7 +24,13 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Design Pattern
+
+Project ini tunduk pada design pattern SOLID serta Repository. Design pattern tersebut digunakan untuk memudahkan development pada skala yang besar (skalabilitas), memudahkan pembacaan bagi orang-orang yang tidak menulis kode tersebut, serta mengurangi resiko error pada kode yang sudah berjalan. Struktur folder ditentukan berdasarkan nama entitas atau module dan didalamnya terdapat schema, interface, repository, handler / controller, serta service. Saya telah menggunakan design pattern ini ke project Golang dan sudah terbukti readability dan kejelasannya walaupun berbeda bahasa pemrograman.
+
+- Handler / Controller, Digunakan untuk memproses HTTP request, parsing request, query dan lain lain.
+- Service, Digunakan untuk memuat, memproses, dan melakukan logika bisnis disetiap endpointnya.
+- Repository, Digunakan untuk akses data menghubungkan Mongoose dengan aplikasi
 
 ## Installation
 
@@ -57,17 +63,3 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
