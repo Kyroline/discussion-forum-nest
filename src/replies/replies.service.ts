@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, Request, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException, Request, UnauthorizedException } from '@nestjs/common';
 import mongoose, { Types } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { PostsService } from '../posts/posts.service';
@@ -54,8 +54,8 @@ export class RepliesService {
         if (!reply)
             throw new NotFoundException()
 
-        if (reply.user != new Types.ObjectId(userId))
-            throw new UnauthorizedException()
+        if (!reply.user._id.equals(userId))
+            throw new ForbiddenException()
 
         return this.repliesRepository.update(id, content)
     }
@@ -67,10 +67,10 @@ export class RepliesService {
             const reply = await this.repliesRepository.delete(id, session)
 
             if (!reply.user.equals(userId) || reply.reply_count != 0) {
-                throw new UnauthorizedException()
+                throw new ForbiddenException()
             }
 
-            await this.replyScoresRepository.deleteAll(reply.post.toString())
+            await this.replyScoresRepository.deleteAll(reply.post.toString(), session)
             await this.postsService.incReplyCount(reply.post.toString(), -1, session)
 
             if (reply.parent)
@@ -78,6 +78,7 @@ export class RepliesService {
 
             await session.commitTransaction()
         } catch (error) {
+            console.log(error)
             await session.abortTransaction()
             throw error
         } finally {
@@ -106,9 +107,7 @@ export class RepliesService {
         const session = await this.connection.startSession()
         try {
             session.startTransaction()
-            console.log(id)
-            console.log(userId)
-            const score = await this.replyScoresRepository.delete(id, userId)
+            const score = await this.replyScoresRepository.delete(id, userId, session)
 
             await this.repliesRepository.incScore(id, (score.score * -1), session)
 

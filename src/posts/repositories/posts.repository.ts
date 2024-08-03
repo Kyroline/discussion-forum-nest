@@ -11,14 +11,14 @@ export class PostsRepository {
         @InjectModel(Post.name) private readonly postModel: Model<Post>
     ) { }
 
-    async findAll(userId?: string): Promise<Post[]> {
+    async findAll(userId?: string): Promise<PostDocument[]> {
         return this.postModel.aggregate([
             ...populateUser(),
             ...(userId ? checkIfUserGiveScore(userId) : [])
         ]).exec()
     }
 
-    async find(postId: string, userId?: string): Promise<Post | null> {
+    async find(postId: string, userId?: string): Promise<PostDocument | null> {
         return this.postModel.aggregate([
             { $match: { _id: new Types.ObjectId(postId) } },
             ...populateUser(),
@@ -40,8 +40,8 @@ export class PostsRepository {
         return this.postModel.updateOne({ _id: new Types.ObjectId(postId) }, { title: title, content: content }, session ? { session } : {})
     }
 
-    async delete(postId: string, userId: string, session?: ClientSession): Promise<PostDocument | null> {
-        return this.postModel.findOneAndDelete({ _id: new Types.ObjectId(postId) }, session ? { session } : {})
+    async delete(postId: string, session?: ClientSession): Promise<PostDocument> {
+        return this.postModel.findOneAndDelete({ _id: new Types.ObjectId(postId) }, { returnOriginal: true, session: session ?? null })
     }
 
     async incScore(postId: string, value: number, session?: ClientSession) {

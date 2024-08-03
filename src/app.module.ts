@@ -11,7 +11,7 @@ import { UsersModule } from './users/users.module';
         ConfigModule.forRoot(),
         PostsModule,
         RepliesModule,
-        MongooseModule.forRoot(process.env.NODE_ENV === 'test' ? process.env.MONGOOSE_TEST_CONN : process.env.MONGOOSE_CONN),
+        MongooseModule.forRoot(process.env.MONGOOSE_CONN),
         AuthModule,
         UsersModule
     ],

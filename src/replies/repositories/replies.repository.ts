@@ -42,8 +42,8 @@ export class RepliesRepository {
         return this.replyModel.updateOne({ _id: new Types.ObjectId(replyId) }, { content: content }, session ? { session } : {})
     }
 
-    async delete(replyId: string, session?: ClientSession): Promise<ReplyDocument | null> {
-        return this.replyModel.findOneAndDelete({ _id: new Types.ObjectId(replyId) }, session ? { session } : {})
+    async delete(replyId: string, session?: ClientSession): Promise<ReplyDocument> {
+        return this.replyModel.findOneAndDelete({ _id: new Types.ObjectId(replyId) }, { returnOriginal: true, session: session ?? null })
     }
 
     async incScore(replyId: string, score: number, session?: ClientSession) {

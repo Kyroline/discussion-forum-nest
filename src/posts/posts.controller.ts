@@ -30,7 +30,7 @@ export class PostsController {
     @UseGuards(AuthGuard)
     @Patch(':id')
     update(@Request() req, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-        return this.postsService.update(id, updatePostDto.title, updatePostDto.content);
+        return this.postsService.update(id, updatePostDto.title, updatePostDto.content, req.user.sub);
     }
 
     @UseGuards(AuthGuard)

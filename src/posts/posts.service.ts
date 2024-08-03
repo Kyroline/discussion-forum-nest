@@ -1,5 +1,5 @@
 import { Post } from './schemas/post.schema';
-import { ForbiddenException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { PostsRepository } from './repositories/posts.repository';
 import * as mongoose from 'mongoose';
@@ -29,15 +29,29 @@ export class PostsService {
         return this.postsRepository.find(id, userId)
     }
 
-    async update(id: string, title: string, content: string) {
-        return this.postsRepository.update(id, title, content)
+    async update(id: string, title: string, content: string, userId: string) {
+        try {
+
+
+            const post = await this.postsRepository.find(id)
+
+            if (!post)
+                throw new NotFoundException()
+
+            if (!post.user._id.equals(userId))
+                throw new ForbiddenException()
+
+            return this.postsRepository.update(id, title, content)
+        } catch (error) {
+            throw error
+        }
     }
 
     async remove(id: string, userId: string) {
         const session = await this.connection.startSession()
         try {
             session.startTransaction()
-            const post = await this.postsRepository.delete(id, userId)
+            const post = await this.postsRepository.delete(id, session)
 
             if (!post.user.equals(userId) || post.reply_count != 0)
                 throw new ForbiddenException()
