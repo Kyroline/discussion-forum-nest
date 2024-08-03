@@ -3,7 +3,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { GiveScoreDto } from './dto/give-score.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard, OptionalAuthGuard } from '../auth/auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -12,16 +12,16 @@ export class PostsController {
     @UseGuards(AuthGuard)
     @Post()
     async create(@Request() req, @Body() createPostDto: CreatePostDto) {
-        return this.postsService.create(req.user.sub, createPostDto);
+        return this.postsService.create(req.user.sub, createPostDto.title, createPostDto.content);
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(OptionalAuthGuard)
     @Get()
     findAll(@Request() req) {
         return this.postsService.findAll(req.user ? req.user.sub : null);
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(OptionalAuthGuard)
     @Get(':id')
     findOne(@Request() req, @Param('id') id: string) {
         return this.postsService.findOne(id, req.user ? req.user.sub : null);
@@ -30,13 +30,13 @@ export class PostsController {
     @UseGuards(AuthGuard)
     @Patch(':id')
     update(@Request() req, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-        return this.postsService.update(id, updatePostDto);
+        return this.postsService.update(id, updatePostDto.title, updatePostDto.content);
     }
 
     @UseGuards(AuthGuard)
     @Delete(':id')
     remove(@Request() req, @Param('id') id: string) {
-        return this.postsService.remove(id);
+        return this.postsService.remove(id, req.user.sub);
     }
 
     @UseGuards(AuthGuard)

@@ -16,8 +16,6 @@ export type PostDocument = HydratedDocument<Post>
 
 @Schema({ timestamps: true })
 export class Post {
-    @Prop({ type: Types.ObjectId, ref: 'Community', required: true })
-    community: Types.ObjectId;
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true })
     user: Types.ObjectId;
@@ -30,10 +28,6 @@ export class Post {
 
     @Prop({ default: 0 })
     reply_count: number
-
-    //   Masih belum perlu
-    //   @Prop({ type: [Attachment], default: [] })
-    //   attachments: Attachment[]
 
     user_score?: number
     saved?: boolean

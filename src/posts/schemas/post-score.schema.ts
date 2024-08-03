@@ -17,3 +17,5 @@ export class PostScore {
 }
 
 export const PostScoreSchema = SchemaFactory.createForClass(PostScore);
+
+PostScoreSchema.index({ post: 1, user: 1 }, { unique: true });
