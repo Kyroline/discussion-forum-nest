@@ -38,7 +38,7 @@ export class RepliesService {
             if (filters.parent)
                 return this.repliesRepository.findAll(userId, [{ $match: { parent: new Types.ObjectId(filters.parent) } }])
             if (filters.post)
-                return this.repliesRepository.findAll(userId, [{ $match: { post: new Types.ObjectId(filters.post) } }])
+                return this.repliesRepository.findAll(userId, [{ $match: { post: new Types.ObjectId(filters.post), parent: null } }])
         }
 
         return this.repliesRepository.findAll(userId, [])
