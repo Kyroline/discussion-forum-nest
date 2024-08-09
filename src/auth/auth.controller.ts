@@ -4,6 +4,7 @@ import {
     Get,
     HttpCode,
     HttpStatus,
+    Patch,
     Post,
     Request,
     UseGuards
@@ -12,6 +13,7 @@ import { AuthGuard } from './auth.guard'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateDto } from './dto/update.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -27,6 +29,13 @@ export class AuthController {
     @Post('register')
     register(@Body() registerDto: RegisterDto) {
         return this.authService.register(registerDto.username, registerDto.email, registerDto.password)
+    }
+
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
+    @Patch('update')
+    update(@Request() req, @Body() updateDto: UpdateDto) {
+        return this.authService.update(req.user.sub, updateDto.username, updateDto.email, updateDto.password, updateDto.newPassword)
     }
 
     @UseGuards(AuthGuard)

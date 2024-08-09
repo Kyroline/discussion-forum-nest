@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Model, Types } from "mongoose";
+import { Model, Types, UpdateWriteOpResult } from "mongoose";
 import { User, UserDocument } from "./schemas/user.schema";
 import { InjectModel } from "@nestjs/mongoose";
 
@@ -23,5 +23,9 @@ export class UsersRepository {
 
     async store(username: string, email: string, password: string): Promise<UserDocument> {
         return this.userModel.create({ username: username, email: email, password: password })
+    }
+
+    async update(id: string, username: string, email: string, password: string): Promise<UpdateWriteOpResult> {
+        return this.userModel.updateOne({ _id: id }, { username: username, email: email, password: password }).exec()
     }
 }

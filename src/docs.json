@@ -479,6 +479,35 @@
                 }
             }
         },
+        "/auth/update": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "operationId": "AuthController_register",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/auth/profile": {
             "get": {
                 "tags": [
@@ -587,6 +616,27 @@
                         "example": "user@example.com"
                     },
                     "password": {
+                        "type": "string",
+                        "example": "mypassword"
+                    }
+                }
+            },"UpdateUserDto": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "MyUsername"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "mypassword"
+                    },
+                    "newPassword": {
                         "type": "string",
                         "example": "mypassword"
                     }

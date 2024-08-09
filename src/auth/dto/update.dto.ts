@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator'
-export class RegisterDto {
+export class UpdateDto {
     @IsEmail()
     email: string
 
@@ -7,6 +7,8 @@ export class RegisterDto {
     username: string
 
     @IsNotEmpty()
-    // @IsStrongPassword()
     password: string
+
+    @IsNotEmpty()
+    newPassword: string
 }
