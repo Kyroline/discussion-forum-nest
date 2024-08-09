@@ -50,7 +50,8 @@ export class AuthService {
         try {
             await this.usersService.update(id, username, email, newPassword)
         } catch (error) {
-            console.log(error)
+            if (error.code == 11000)
+                throw new ConflictException({ statusCode: 409, message: 'Email or username is already in use' })
             throw new Error()
         }
         console.log('setelah update')
